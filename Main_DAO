@@ -1,0 +1,59 @@
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.*;
+import java.sql.DriverManager;
+
+// Импорт User
+
+public class Main {
+    public static void main(String[] args) throws SQLException {
+      try (var conn = DriverManager.getConnection("jdbc:h2:mem:hexlet_test")) {
+        
+        var sql = "CREATE TABLE users (id BIGINT PRIMARY KEY AUTO_INCREMENT, username VARCHAR(255), phone VARCHAR(255))";
+            try (var statement = conn.createStatement()) {
+                statement.execute(sql);
+            }
+        
+    
+        var user1 = new User("Maria", "888888888");
+        var user2 = new User("Anna", "777777777");
+        var user3 = new User("Denis", "333333333");
+        var user4 = new User("Daria", "555555555");
+        var user5 = new User("Lena", "999999999");
+        
+        Set<User> set = new HashSet<>(Set.of(user1, user2, user3, user4, user5));
+
+        var dao = new UserDAO(conn);
+        for (User user : set) { 
+          dao.save(user);
+          System.out.println(user.getId() + " " + user.getName() + " " + user.getPhone());
+        }
+       System.out.println();
+       Long id1 = 2L;
+       var us1 = dao.find(id1).get();
+       
+       System.out.println(us1.getId() + " " + us1.getName());
+       System.out.println();
+       dao.delete(2L);
+       
+       for (Long id = 1L; id < 6L; id++) { 
+          var us = dao.find(id).orElse(null);
+          if (us == null){ 
+          System.out.println("No user with this id!");
+          } else {
+          System.out.println(us.getId() + " " + us.getName() + " " + us.getPhone());
+          }
+          
+        }
+
+      }
+  }
+}
+
+
+
+
+
+
+
+
